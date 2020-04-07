@@ -6,6 +6,9 @@ phases:
         - echo twistcli Download
         - curl -u $PRISMA_USER:$PRISMA_PASS --output ./twistcli $PRISMA_CONSOLE/api/v1/util/twistcli
         - chmod a+x ./twistcli
+        - echo Logging in to Amazon ECR...
+        - aws --version
+        - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
   build:
     commands:
       - echo Build started on `date`
