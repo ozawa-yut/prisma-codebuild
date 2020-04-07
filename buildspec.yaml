@@ -1,0 +1,23 @@
+version: 0.2
+ 
+phases:
+  install:
+    commands:
+        - echo twistcli Download
+        - curl -u $PRISMA_USER:$PRISMA_PASS --output ./twistcli $PRISMA_CONSOLE/api/v1/util/twistcli
+        - chmod a+x ./twistcli
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $ECR_URI:$TAG .
+      - docker images
+      - echo Scanning
+      - ./twistcli images scan --details -address $PRISMA_CONSOLE -u $PRISMA_USER -p $PRISMA_PASS --vulnerability-threshold critical --compliance-threshold critical $ECR_URI:$TAG
+  post_build:
+    commands:
+      - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:$TAG
+      - echo Writing image definitions file...
