@@ -1,1 +1,1 @@
-FROM nginx:1.17
+FROM ubuntu:18.04
