@@ -19,5 +19,5 @@ phases:
       - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-      - docker push $REPOSITORY_URI:$TAG
+      - docker push $ECR_URI:$TAG
       - echo Writing image definitions file...
