@@ -8,19 +8,19 @@ phases:
         - chmod a+x ./twistcli
         - echo Logging in to Amazon ECR...
         - aws --version
-        - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+        - aws ecr get-login-password | docker login --username AWS --password-stdin https://$ECR_URI
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $ECR_URI:$TAG .
+      - docker build -t $ECR_URI/$REPO_NAME:$TAG .
       - docker images
       - echo Scanning
-      - ./twistcli images scan --details -address $PRISMA_CONSOLE -u $PRISMA_USER -p $PRISMA_PASS --vulnerability-threshold critical --compliance-threshold critical $ECR_URI:$TAG
+      - ./twistcli images scan --details -address $PRISMA_CONSOLE -u $PRISMA_USER -p $PRISMA_PASS --vulnerability-threshold critical --compliance-threshold critical $ECR_URI/$REPO_NAME:$TAG
   post_build:
     commands:
       - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-      - docker push $ECR_URI:$TAG
+      - docker push $ECR_URI/$REPO_NAME:$TAG
       - echo Writing image definitions file...
